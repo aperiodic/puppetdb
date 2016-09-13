@@ -42,6 +42,17 @@
       re-pattern
       (re-matches s)))
 
+(deftest parse-cmd-filename-behavior
+  (let [r0 (-> 0 coerce-time/from-long timestamp)
+        r10 (-> 10 coerce-time/from-long timestamp)]
+    (is (= {:received r0 :version 0 :command "replace catalog" :certname "foo"}
+           (#'dlo/parse-cmd-filename "0-0_replace catalog_0_foo.json")))
+    (is (= {:received r10 :version 10 :command "replace catalog" :certname "foo"}
+           (#'dlo/parse-cmd-filename "10-10_replace catalog_10_foo.json")))
+    (is (= {:received r10 :version 10 :command "unknown" :certname "foo"}
+           (#'dlo/parse-cmd-filename "10-10_unknown_10_foo.json")))
+    (is (not (#'dlo/parse-cmd-filename "0-0_foo_0_foo.json")))))
+
 (deftest discard-cmdref
   (call-with-temp-dir-path
    (get-path "target")
